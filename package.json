@@ -1,6 +1,6 @@
 {
   "name": "karma-cjsx-preprocessor",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A Karma preprocessor for compiling Coffee React CJSX files",
   "homepage": "https://github.com/mtscout6/karma-cjsx-preprocessor",
   "repository": {
@@ -10,6 +10,9 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha"
+  },
+  "peerDependencies": {
+    "karma": ">=0.11.14"
   },
   "dependencies": {
     "coffee-react-transform": "~0.3.1"
@@ -22,12 +25,14 @@
     "rewire": "~2.0.1"
   },
   "keywords": [
+    "coffee",
+    "coffee-script",
     "jsx",
-    "react.js",
     "karma",
-    "karma-plugin",
     "karma-launcher",
-    "coffee"
+    "karma-plugin",
+    "karma-preprocessor",
+    "react.js"
   ],
   "author": "Matt Smith <mtscout6@gmail.com> (http://softwarebymatt.com)",
   "license": "MIT"
