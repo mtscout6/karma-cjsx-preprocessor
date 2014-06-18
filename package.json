@@ -35,5 +35,8 @@
     "react.js"
   ],
   "author": "Matt Smith <mtscout6@gmail.com> (http://softwarebymatt.com)",
-  "license": "MIT"
+  "licenses" : [{
+    "type": "Apache",
+    "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+  }]
 }
