@@ -1,17 +1,43 @@
 describe('unit/preprocessor.js', function() {
   var rewire = require('rewire');
   var module = rewire('../../index');
-  var transformStub;
-  var originalTransformer;
+  var cjsxTransformer;
+  var coffeeTransformerFactory;
+  var coffeeTransformer;
+  var originalCjsxTransformer;
+  var originalCoffeeTransformerFactory;
+
+  var transformedCjsxContent = 'transformed cjsx';
+  var transformedCoffeeContent = 'transformed coffee';
+
+  var logger = {
+    create: function(name) {
+      return {
+        debug: function(msg) {},
+        info: function(msg) {},
+        warn: function(msg) {},
+        error: function(msg) {}
+      };
+    }
+  };
 
   beforeEach(function() {
-    transformStub = sinon.stub();
-    originalTransformer = module.__get__('transformer');
-    module.__set__('transformer', transformStub);
+    cjsxTransformer = sinon.stub();
+    coffeeTransformerFactory = sinon.stub();
+    coffeeTransformer = sinon.stub();
+
+    coffeeTransformerFactory.returns(coffeeTransformer);
+
+    originalCjsxTransformer = module.__get__('cjsxTransformer');
+    originalCjsxTransformer = module.__get__('coffeeTransformerFactory');
+
+    module.__set__('cjsxTransformer', cjsxTransformer);
+    module.__set__('coffeeTransformerFactory', coffeeTransformerFactory);
   });
 
   afterEach(function() {
-    module.__set__('transformer', originalTransformer);
+    module.__set__('cjsxTransformer', originalCjsxTransformer);
+    module.__set__('coffeeTransformerFactory', originalCoffeeTransformerFactory);
   });
 
   describe('When requiring the module', function() {
@@ -32,19 +58,51 @@ describe('unit/preprocessor.js', function() {
 
   describe('When calling the factory', function() {
     var factory;
-    var result;
+    var cjsxPreprocessor;
+    var args = 'args';
+    var config = { conf: 'conf' };
+    var helper = 'helper';
 
     beforeEach(function() {
       factory = module['preprocessor:cjsx'][1];
-      result = factory();
+      cjsxPreprocessor = factory(args, config, logger, helper);
     });
 
     it('should return another function taking 3 arguments', function() {
-      result.should.be.a('function');
-      result.should.have.length(3);
+      cjsxPreprocessor.should.be.a('function');
+      cjsxPreprocessor.should.have.length(3);
     });
 
-    describe('and calling the result', function() {
+    it('should create coffee transformer from same args', function() {
+      var call = coffeeTransformerFactory.getCall(0);
+
+      call.args[0].should.equal(args);
+      call.args[1].conf.should.equal(config.conf);
+      call.args[2].should.equal(logger);
+      call.args[3].should.equal(helper);
+    });
+
+    it('should defer file name changes to coffee preprocessor', function() {
+      var call = coffeeTransformerFactory.getCall(0);
+      call.args[1].transformPath.should.be.a('function');
+    });
+
+    it('should rename the file from .cjsx to .js', function() {
+      var call = coffeeTransformerFactory.getCall(0);
+      call.args[1].transformPath('abc.cjsx').should.equal('abc.js')
+    });
+
+    it('should rename the file from .coffee to .js', function() {
+      var call = coffeeTransformerFactory.getCall(0);
+      call.args[1].transformPath('abc.coffee').should.equal('abc.js')
+    });
+
+    it('should keep .js file extension', function() {
+      var call = coffeeTransformerFactory.getCall(0);
+      call.args[1].transformPath('abc.js').should.equal('abc.js')
+    });
+
+    describe('and calling the preprocessor with no errors', function() {
       var callback;
       var file;
 
@@ -53,33 +111,48 @@ describe('unit/preprocessor.js', function() {
           path: 'abc.cjsx',
           originalPath: 'abc.cjsx'
         };
-        transformStub.returns('transformed content');
+        cjsxTransformer.returns(transformedCjsxContent);
         callback = sinon.spy();
-        result('content', file, callback);
+        cjsxPreprocessor('content', file, callback);
       });
 
       it('should call the react transformer', function() {
-        transformStub.should.have.been.calledWith('content');
+        cjsxTransformer.should.have.been.calledWith('content');
       });
 
-      it('should call the callback with the transformed content', function() {
-        callback.should.have.been.calledWith('transformed content');
+      it('should call the coffee preprocessor', function() {
+        coffeeTransformer.should.have.been.calledWith(transformedCjsxContent, file, callback);
       });
+    });
 
-      it('should rename the file from .cjsx to .js', function() {
-        file.path.should.equal('abc.js');
-      });
+    describe('and calling the preprocessor with cjsx errors', function() {
+      var callback;
+      var file;
+      var error = new SyntaxError('Some Syntax Error');
+      error.location = {
+        first_line: 15
+      };
 
-      it('should keep .js file extension', function() {
+      beforeEach(function() {
         file = {
-          path: 'abc.js',
-          originalPath: 'abc.js'
+          path: 'abc.cjsx',
+          originalPath: 'abc.cjsx'
         };
-
-        transformStub.returns('transformed content');
+        cjsxTransformer.throws(error);
         callback = sinon.spy();
-        result('content', file, callback);
-        file.path.should.equal('abc.js');
+        cjsxPreprocessor('content', file, callback);
+      });
+
+      it('should call the react transformer', function() {
+        cjsxTransformer.should.have.been.calledWith('content');
+      });
+
+      it('should call the react transformer', function() {
+        callback.should.have.been.calledWith(error);
+      });
+
+      it('should not call the coffee preprocessor', function() {
+        coffeeTransformer.should.not.have.been.called;
       });
     });
   });
