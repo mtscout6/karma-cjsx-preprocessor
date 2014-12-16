@@ -1,6 +1,6 @@
 {
   "name": "karma-cjsx-preprocessor",
-  "version": "0.0.5",
+  "version": "1.0.0",
   "description": "A Karma preprocessor for compiling Coffee React CJSX files",
   "homepage": "https://github.com/mtscout6/karma-cjsx-preprocessor",
   "repository": {
@@ -36,8 +36,10 @@
     "react.js"
   ],
   "author": "Matt Smith <mtscout6@gmail.com> (http://softwarebymatt.com)",
-  "licenses" : [{
-    "type": "Apache",
-    "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
-  }]
+  "licenses": [
+    {
+      "type": "Apache",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  ]
 }
