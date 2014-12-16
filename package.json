@@ -15,7 +15,7 @@
     "karma": ">=0.11.14"
   },
   "dependencies": {
-    "coffee-react-transform": "^2.0.0",
+    "coffee-react-transform": "^2.1.0",
     "karma-coffee-preprocessor": "^0.2.1"
   },
   "devDependencies": {
