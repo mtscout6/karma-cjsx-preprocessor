@@ -1,6 +1,6 @@
 {
   "name": "karma-cjsx-preprocessor",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "description": "A Karma preprocessor for compiling Coffee React CJSX files",
   "homepage": "https://github.com/mtscout6/karma-cjsx-preprocessor",
   "repository": {
@@ -15,7 +15,7 @@
     "karma": ">=0.11.14"
   },
   "dependencies": {
-    "coffee-react-transform": "^2.1.0",
+    "coffee-react-transform": "^3.3.0",
     "karma-coffee-preprocessor": "^0.2.1"
   },
   "devDependencies": {
